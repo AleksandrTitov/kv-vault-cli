@@ -1,0 +1,51 @@
+{
+  "secret/":
+  [
+    {
+      "main2":
+      {
+        "secret2": "suslo222",
+        "secret3": "suslo223"
+      },
+      "full_path": "secret/main2"
+    },
+    {
+      "main1":
+      {
+        "secret": "2"
+      },
+      "full_path": "secret/main1"
+    },
+    {
+      "main/":
+      [
+        {
+          "hello/":
+          [
+            {
+              "hello2/":
+              [
+                {
+                  "hello3":
+                  {
+                    "secret2": "suslo222",
+                    "secret3": "suslo223"
+                  },
+                  "full_path": "secret/main/hello/hello2/hello3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hello":
+          {
+            "secret2": "suslo222",
+            "secret3": "suslo223"
+          },
+          "full_path": "secret/main/hello"
+        }
+      ]
+    }
+  ]
+}
