@@ -7,8 +7,9 @@ from libs.VaultManipulator import VaultManipulator
 # Aries for improvement
 #
 # TODO transfer secrets between vaults:
-# TODO  save to file
-# TODO  namespaces ?
+# TODO save to file
+# TODO namespaces ?
+# TODO tests
 #
 #####
 
@@ -23,39 +24,12 @@ secret_root_n = {'secret/': []}
 
 tree_to_restore = {'secret/': [{'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main2'}, {'secret': {'secret': '2'}, 'full_path': 'secret/main1'}, {'main/': [{'hello/': [{'hello2/': [{'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main/hello/hello2/hello3'}]}]}, {'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main/hello'}]}, {'a1/': [{'a2/': [{'a3/': [{'a4/': [{'a5/': [{'a6/': [{'a7/': [{'secret': {'end': 'yes\nyes\nno\nyes'}, 'full_path': 'secret/a1/a2/a3/a4/a5/a6/a7/end'}]}]}]}]}]}]}]}]}
 
-#to_delete = action.dump_secrets(secret_root_n, '')
-#action.full_delete(to_delete)
+print('--> Collect data to delete')
+to_delete = action.dump_secrets(secret_root_n, '')
+print('--> Full delete')
+action.full_delete(to_delete)
+print("---> Restore")
 action.restore_secrets(tree_to_restore)
-
-def dump_secrets(root, full_path):
-    for key, val in root.items():
-        full_path = full_path + key
-        dirs = vault.get_list_of_secrets(full_path)
-        while len(dirs) != 0:
-            data = dirs.pop()
-            if '/' in data:
-                val.append(dump_secrets({data: []}, full_path))
-            else:
-                root[key].append({'secret': vault.get_data(full_path+data), 'full_path': full_path+data})
-    return root
-
-
-def restore_secrets(tree_of_secrets):
-    for key, val in tree_of_secrets.items():
-        for i in val:
-            if 'full_path' in i:
-                vault.write_data(i['full_path'], i['secret'])
-            else:
-                restore_secrets(i)
-
-
-def full_delete(tree_of_secrets):
-    for key, val in tree_of_secrets.items():
-        for i in val:
-            if 'full_path' in i:
-                vault.delete_data(i['full_path'])
-            else:
-                full_delete(i)
 
 #tree_to_restore = {'secret/': [{'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main2'}, {'secret': {'secret': '2'}, 'full_path': 'secret/main1'}, {'main/': [{'hello/': [{'hello2/': [{'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main/hello/hello2/hello3'}]}]}, {'secret': {'secret2': 'suslo222', 'secret3': 'suslo223'}, 'full_path': 'secret/main/hello'}]}, {'a1/': [{'a2/': [{'a3/': [{'a4/': [{'a5/': [{'a6/': [{'a7/': [{'secret': {'end': 'yes\nyes\nno\nyes'}, 'full_path': 'secret/a1/a2/a3/a4/a5/a6/a7/end'}]}]}]}]}]}]}]}]}
 
