@@ -1,3 +1,4 @@
 import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('spam')
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('vault')

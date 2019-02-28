@@ -1,7 +1,10 @@
-"""Hashicorp Vault Manipulator
+"""
+Hashicorp Vault Manipulator
 
-Authorization use Vault token
-
+Support the following action:
+    - Dump secrets - return dict with secrets
+    - Restore secrets - restore secrets form dict
+    - Full delete - delete all the secrets from Vault
 """
 
 
@@ -14,8 +17,7 @@ class VaultManipulator(object):
         for key, val in root.items():
             full_path = full_path + key
             dirs = self.vault.get_list_of_secrets(full_path)
-            while len(dirs) != 0:
-                data = dirs.pop()
+            for data in dirs:
                 if '/' in data:
                     val.append(self.dump_secrets({data: []}, full_path))
                 else:
@@ -37,3 +39,6 @@ class VaultManipulator(object):
                     self.vault.delete_data(i['full_path'])
                 else:
                     self.full_delete(i)
+
+if __name__ == "__main__":
+    print(__doc__)

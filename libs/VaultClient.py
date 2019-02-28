@@ -1,32 +1,35 @@
-"""Hashicorp Vault Client
+"""
+Hashicorp Vault Client
 
-Authorization use Vault token
-
+Support the following action:
+    - Get list of secrets
+    - Get data
+    - Write data
+    - Delete data
 """
 
 import urllib3
 import json
-import logging
-
-logger = logging.getLogger('[Vault Client]')
-logging.basicConfig(level=logging.INFO)
+from libs.setup_logger import logger
 
 
 class VaultClient(object):
+    """Hashicorp Vault Client"""
 
     def __init__(self, vault_addr='http://127.0.0.1:8200', vault_token=None, api_ver='v1'):
         self.vault_addr = vault_addr
-        self.vault_token = vault_token
+        self._vault_token = vault_token
         self.api_ver = api_ver
+        self.log = logger
 
     def _http_request(self, method, path, data=None):
 
         url = f'{self.vault_addr}/{self.api_ver}/{path}'
         body = json.dumps(data)
 
-        if self.vault_token:
+        if self._vault_token:
             headers = {
-                'X-Vault-Token': self.vault_token
+                'X-Vault-Token': self._vault_token
             }
         else:
             headers = None
@@ -42,9 +45,9 @@ class VaultClient(object):
 
         if request.status != 200:
             list_of_secrets = ['none']
-            logger.warning(f'The path {path} is incorrect, set the value "none"')
+            self.log.warning(f'Path {path} is incorrect, set the value "none"')
         else:
-            logger.info(f'The key/value from {path} got')
+            self.log.info(f'List of secrets from {path} successfully got')
             list_of_secrets = json.loads(request.data)['data']['keys']
 
         return list_of_secrets
@@ -55,9 +58,9 @@ class VaultClient(object):
 
         if request.status != 200:
             data = 'none'
-            logger.warning(f'The path {path} is incorrect, set the data "none"')
+            self.log.warning(f'Path {path} is incorrect, set the data to {data}')
         else:
-            logger.info(f'The data from {path} got')
+            self.log.info(f'Data from {path} successfully got')
             data = json.loads(request.data)['data']
 
         return data
@@ -68,14 +71,21 @@ class VaultClient(object):
 
         if request.status != 404:
             self.delete_data(path=path)
-
+            self.log.info(f'Path {path} contain the data, delete it')
         request = self._http_request('POST', path, data)
         if request.status == 204:
-            print('Write is successful...')
+            self.log.info(f'Data successfully wrote to {path}...')
+        else:
+            self.log.warning(f'Alarm! Something goes wrong...')
 
     def delete_data(self, path):
 
         request = self._http_request('DELETE', path)
 
         if request.status == 204:
-            logger.info(f'Key {path} successful deleted')
+            self.log.info(f'Key {path} successfully deleted')
+        else:
+            self.log.warning(f'Alarm! Something goes wrong...')
+
+if __name__ == "__main__":
+    print(__doc__)
