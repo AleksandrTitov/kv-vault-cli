@@ -18,21 +18,19 @@ from libs.VaultManipulator import VaultManipulator
 
 def delete_data_from_vault(vault_addr, vault_token):
 
-    secret_root = {'secret/': []}
-
     vault = VaultClient(vault_addr, vault_token)
     action = VaultManipulator(vault)
+    secret_root = action.get_kv_mounts()
     to_delete = action.dump_secrets(secret_root, '')
     action.full_delete(to_delete)
 
 
 def dump_data_from_vault(vault_addr, vault_token, file="vault_dump", time_stamp=True):
 
-    secret_root = {'secret/': []}
-
     vault = VaultClient(vault_addr, vault_token)
     action = VaultManipulator(vault)
-    data = action.dump_secrets(secret_root, '')
+    secret_root = action.get_kv_mounts()
+    data = action.dump_secrets(secret_root)
 
     if time_stamp:
         file = f'{file}_{datetime.datetime.now().isoformat()}.json'
@@ -62,14 +60,14 @@ def transfer_data(vault_addr_src, vault_token_src, vault_addr_dst, vault_token_d
     action_src = VaultManipulator(vault_src)
     action_dst = VaultManipulator(vault_dst)
 
-    secret_root = {'secret/': []}
+    secret_root = action_src.get_kv_mounts()
 
-    data = action_src.dump_secrets(secret_root, '')
+    data = action_src.dump_secrets(secret_root)
 
     if merge:
         action_dst.restore_secrets(data)
     else:
-        to_delete = action_dst.dump_secrets(secret_root, '')
+        to_delete = action_dst.dump_secrets(secret_root)
         action_dst.full_delete(to_delete)
         action_dst.restore_secrets(data)
 

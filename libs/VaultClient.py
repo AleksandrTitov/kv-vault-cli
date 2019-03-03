@@ -87,5 +87,14 @@ class VaultClient(object):
         else:
             self.log.warning(f'Alarm! Something goes wrong...')
 
+    def list_mounted_secrets_engines(self):
+
+        path = 'sys/mounts'
+        request = self._http_request('GET', path)
+
+        data = json.loads(request.data)
+
+        return data
+
 if __name__ == "__main__":
     print(__doc__)
