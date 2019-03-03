@@ -41,6 +41,8 @@ class VaultManipulator(object):
 
     def restore_secrets(self, tree_of_secrets):
         for key, val in tree_of_secrets.items():
+            if val['type'] == 'root' and key not in self.vault.list_mounted_secrets_engines():
+                self.vault.enable_secrets_engine(key[:-1])
             for i in val['data']:
                 if 'full_path' in i:
                     self.vault.write_data(i['full_path'], i['secret'])

@@ -96,5 +96,20 @@ class VaultClient(object):
 
         return data
 
+    def enable_secrets_engine(self, name, type="kv"):
+
+        path = f'sys/mounts/{name}'
+
+        logger.info(f'Create {type} secrets engine "{name}" ...')
+        request = self._http_request('POST', path, data={
+            'type': type
+        })
+
+        if request.status == 204:
+            self.log.info(f'Secrets engine "{name}" is successfully created!')
+        else:
+            self.log.warning(f'Alarm! Something goes wrong...')
+
+
 if __name__ == "__main__":
     print(__doc__)

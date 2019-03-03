@@ -10,7 +10,6 @@ from libs.VaultManipulator import VaultManipulator
 #####
 # Aries for improvement
 #
-# TODO namespaces
 # TODO tests
 #
 #####
