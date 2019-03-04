@@ -2,18 +2,66 @@
 Hashicorp Vault Manipulator
 
 Support the following action:
-    - Dump secrets - return dict with secrets
-    - Restore secrets - restore secrets form dict
-    - Full delete - delete all the secrets from Vault
+    - Dump secrets - return dict with secrets;
+    - Restore secrets - restore secrets form dict;
+    - Full delete - delete all the secrets from Vault;
+    - Get KV mounts - get KV secrets engine;
 """
 
 
 class VaultManipulator(object):
+    """
+    Works with Vault KV secrets engines;
+    To connect to Vault uses VaultClient class;
+    """
 
     def __init__(self, vault):
         self.vault = vault
 
     def dump_secrets(self, root, full_path=''):
+        """
+        The method finds the secrets, supports multiple KV secrets engines,
+        and return it in the dictionary
+
+        :param root: the dictionary in the following format:
+            {
+              "secret1/":
+                {
+                  "data": [],
+                  "type": "root"
+                },
+              "secret2/":
+                {
+                  "data": [],
+                  "type": "root"
+                }
+            }
+        :param full_path: path to the secret
+        :return: the dictionary in the following format:
+            {
+              "secret1/": {
+                "data": [
+                  {
+                    "dir/": {
+                      "data": [
+                        {
+                          "secret": {
+                            "data1": "secret1",
+                            "data2": "secret2"
+                          },
+                          "full_path": "kv/dir/sensitive_data",
+                          "type": "secret"
+                        }
+                      ],
+                      "type": "dir"
+                    }
+                  }
+                ],
+                "type": "root"
+              }
+            }
+        """
+
         for key, val in root.items():
 
             if val['type'] == 'root':
@@ -40,6 +88,13 @@ class VaultManipulator(object):
         return root
 
     def restore_secrets(self, tree_of_secrets):
+        """
+        The method restore secrets form dictionary.
+        If the KV secret engine doesn't exist, it'll be created.
+
+        :param tree_of_secrets: it's a dictionary, which return "dump_secrets" method
+        """
+
         for key, val in tree_of_secrets.items():
             if val['type'] == 'root' and key not in self.vault.list_mounted_secrets_engines():
                 self.vault.enable_secrets_engine(key[:-1])
@@ -50,6 +105,13 @@ class VaultManipulator(object):
                     self.restore_secrets(i)
 
     def full_delete(self, tree_of_secrets):
+
+        """
+        Deleting all the secrets from KV secret engine
+
+        :param tree_of_secrets: it's a dictionary, which return "dump_secrets" method
+        """
+
         for key, val in tree_of_secrets.items():
             for i in val['data']:
                 if 'full_path' in i:
@@ -58,6 +120,23 @@ class VaultManipulator(object):
                     self.full_delete(i)
 
     def get_kv_mounts(self):
+        """
+        Getting all the KV secret engine
+
+        :return: dictionary in the following format:
+            {
+              "secret1/":
+                {
+                  "data": [],
+                  "type": "root"
+                },
+              "secret2/":
+                {
+                  "data": [],
+                  "type": "root"
+                }
+            }
+        """
 
         kv_mounts = {}
         secrets_engines = self.vault.list_mounted_secrets_engines()
