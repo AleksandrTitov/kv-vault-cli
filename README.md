@@ -3,7 +3,7 @@
 
 ## How to use
 
-Supported the following action:
+Supported the following actions:
 ### dump
 
 Collect a Vault K/V data into the file.
@@ -17,7 +17,7 @@ Restore a Vault K/V data from the file.
 
 ```
 ./kv_vault_cli.py restore --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN" \
-                       --file="PATH TO FILE"
+                          --file="PATH TO FILE"
 ```
 
 ### delete
