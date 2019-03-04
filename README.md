@@ -16,7 +16,7 @@ Collect a Vault K/V data into the file.
 Restore a Vault K/V data from the file.
 
 ```
-./kv_vault_cli.py dump --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN" \
+./kv_vault_cli.py restore --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN" \
                        --file="PATH TO FILE"
 ```
 
