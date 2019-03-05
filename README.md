@@ -6,14 +6,14 @@
 Supported the following actions:
 ### dump
 
-Collect a Vault K/V data into the file.
+Dumping Vault K/V data into the file
 
 ```
 ./kv_vault_cli.py dump --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN"
 ```
 ### restore
 
-Restore a Vault K/V data from the file.
+Restore Vault K/V data from the file
 
 ```
 ./kv_vault_cli.py restore --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN" \
@@ -22,7 +22,7 @@ Restore a Vault K/V data from the file.
 
 ### delete
 
-Full delete data from all of the K/V Secrets Engine
+Full delete data from all of the K/V Secrets Engines
 
 ```
 ./kv_vault_cli.py delete --vault-addr="VAULT ADDR" --vault-token="VAULT TOKEN"
