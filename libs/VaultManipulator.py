@@ -141,9 +141,11 @@ class VaultManipulator(object):
         kv_mounts = {}
         secrets_engines = self.vault.list_mounted_secrets_engines()
 
+        # Support bough type of secrets engines kv and generic
+        # https://github.com/hashicorp/vault/blob/master/CHANGELOG.md#083-september-19th-2017
         for key, val in secrets_engines.items():
             try:
-                if val['type'] == 'kv':
+                if val['type'] == 'kv' or val['type'] == 'generic':
                     kv_mounts[key] = {'data': [], 'type': 'root'}
             except:
                 pass
