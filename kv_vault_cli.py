@@ -7,28 +7,39 @@ import argparse
 from libs.VaultClient import VaultClient
 from libs.VaultManipulator import VaultManipulator
 
-#####
-# Aries for improvement
-#
-# TODO tests
-#
-#####
 
-
-def delete_data_from_vault(vault_addr, vault_token):
+def delete_data_from_vault(vault_addr, vault_token, root_path=''):
 
     vault = VaultClient(vault_addr, vault_token)
     action = VaultManipulator(vault)
-    secret_root = action.get_kv_mounts()
+    if root_path:
+        secret_root = {
+            root_path: {
+                'data': [],
+                'type': 'root'
+            }
+        }
+    else:
+        secret_root = action.get_kv_mounts()
     to_delete = action.dump_secrets(secret_root, '')
     action.full_delete(to_delete)
 
 
-def dump_data_from_vault(vault_addr, vault_token, file="vault_dump", time_stamp=True):
+def dump_data_from_vault(vault_addr, vault_token, root_path='', file="vault_dump", time_stamp=True):
 
     vault = VaultClient(vault_addr, vault_token)
     action = VaultManipulator(vault)
-    secret_root = action.get_kv_mounts()
+
+    if root_path:
+        secret_root = {
+            root_path: {
+                'data': [],
+                'type': 'root'
+            }
+        }
+    else:
+        secret_root = action.get_kv_mounts()
+
     data = action.dump_secrets(secret_root)
 
     if time_stamp:
@@ -51,7 +62,7 @@ def restore_data_to_vault(vault_addr, vault_token, file="vault_dump"):
     action.restore_secrets(data)
 
 
-def transfer_data(vault_addr_src, vault_token_src, vault_addr_dst, vault_token_dst, not_merge=False):
+def transfer_data(vault_addr_src, vault_token_src, vault_addr_dst, vault_token_dst, root_path='', not_merge=False):
 
     vault_src = VaultClient(vault_addr_src, vault_token_src)
     vault_dst = VaultClient(vault_addr_dst, vault_token_dst)
@@ -59,7 +70,15 @@ def transfer_data(vault_addr_src, vault_token_src, vault_addr_dst, vault_token_d
     action_src = VaultManipulator(vault_src)
     action_dst = VaultManipulator(vault_dst)
 
-    secret_root_src = action_src.get_kv_mounts()
+    if root_path:
+        secret_root_src = {
+            root_path: {
+                'data': [],
+                'type': 'root'
+            }
+        }
+    else:
+        secret_root_src = action_src.get_kv_mounts()
 
     data = action_src.dump_secrets(secret_root_src)
 
@@ -80,12 +99,13 @@ if __name__ == '__main__':
     parser.add_argument('action', metavar='action', choices=['dump', 'restore', 'delete', 'transfer'],
                         type=str, help='Action: dump, restore, delete, transfer')
 
-    parser.add_argument('--vault-addr', help='Vault address')
+    parser.add_argument('--vault-addr', help='Vault address', default='http://127.0.0.1:8200')
     parser.add_argument('--vault-token', help='Vault token')
     parser.add_argument('--vault-addr-src', help='Vault Source address')
     parser.add_argument('--vault-addr-dst', help='Vault Destination addres')
     parser.add_argument('--vault-token-src', help='Vault Source token')
     parser.add_argument('--vault-token-dst', help='Vault Destination token')
+    parser.add_argument('--vault-root-path', help='Vault Root path', default='')
 
     parser.add_argument('--file', help='File with secrets to restore')
 
@@ -96,7 +116,7 @@ if __name__ == '__main__':
 
     if args.action == 'dump':
         if args.vault_addr and args.vault_token:
-            dump_data_from_vault(args.vault_addr, args.vault_token)
+            dump_data_from_vault(args.vault_addr, args.vault_token, args.vault_root_path)
         else:
             print('Usage: \n\n'
                   'data_vault_cli.py dump \\\n'
@@ -115,7 +135,7 @@ if __name__ == '__main__':
                   'Restore Vault data from the file.')
     elif args.action == 'delete':
         if args.vault_addr and args.vault_token:
-            delete_data_from_vault(args.vault_addr, args.vault_token)
+            delete_data_from_vault(args.vault_addr, args.vault_token, args.vault_root_path)
         else:
             print('Usage: \n\n'
                   'data_vault_cli.py delete \\\n'
@@ -126,7 +146,7 @@ if __name__ == '__main__':
         if args.vault_addr_src and args.vault_token_src and args.vault_addr_dst and args.vault_token_dst:
             transfer_data(args.vault_addr_src, args.vault_token_src,
                           args.vault_addr_dst, args.vault_token_dst,
-                          args.not_merge)
+                          args.vault_root_path, args.not_merge)
         else:
             print('Usage: \n\n'
                   'data_vault_cli.py transfer \\\n'
